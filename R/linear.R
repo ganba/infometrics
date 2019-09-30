@@ -2,26 +2,28 @@
 #'
 #' @param y  An (Nx1) vector representing the dependent variable where N is the number of observations
 #' @param X  An (NxK) matrix representing a set of independent variables where K is number of regressors
-#' @param Z  An (KxM) matrix representing support spaces  for regression coefficients where M is the dimension of the support spaces
+#' @param Z  An (KxM) matrix representing support spaces  the for regression coefficients where M is the dimension of the support spaces
 #' @param v  An optional argument representing a support space for error terms:
 #'           (a) if missing then \strong{v} is a (5x1) vector of equally spaced points in \code{\strong{[a,b]}} interval;
 #'           (b) if a scalar (e.g. \strong{H}) then \strong{v} is a (Hx1) vector of equally spaced points in \code{\strong{[a,b]}} interval.
 #'           Please note that the \code{\strong{[a,b]}} interval is centered around zero, and \strong{a} and \strong{b} are calculated
 #'           using the empirical three-sigma rule Pukelsheim (1994).
 #' @param nu Optional: A weight parameter representing the trade-off between prediction and precision
-#' @param p0 Optional: Prior probabilities associated with the betas
+#' @param p0 Optional: Prior probabilities associated with the regression coefficients
 #' @param w0 Optional: Prior probabilities associated with the error terms
-#' @param optim_method Optional: same as "method" argument for "optim" in "stats"
+#' @param optim_method Optional: same as the "method" argument for the "optim" function in "stats"
 #'
 #' @return A list
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' set.seed(123)
+#' y <- runif(100)
+#' X <- matrix(runif(200), nrow = 100, ncol = 2)
+#' Z <- matrix(c(-1, 0, 1, -1, 0, 1), nrow = 2, byrow = TRUE)
 #' gce_lin(y, X, Z)
 #' gce_lin(y, X, Z, 3)
 #' gce_lin(y, X, Z, 3, 0.6)
-#' }
 gce_lin <- function(y, X, Z, v, nu, p0, w0, optim_method = "BFGS") {
 
   dimX <- dim(X)

@@ -1,14 +1,14 @@
 #' Matrix Balancing
 #'
-#' @param y A vector representing the sum of all the cells in respective rows of the unknown P matrix ma
-#' @param x A vector representing the sum of all the cells in respective columns of the unknown P matrix ma
+#' @param y A vector representing the sum of all the cells in respective rows of the unknown P matrix
+#' @param x A vector representing the sum of all the cells in respective columns of the unknown P matrix
 #' @param dimV An optional argument (scalar) representing dimensions of the support space for the error terms, default value is 5.
-#' @param nu An optional argument (scalar) representing the trade-off between prediction and precision
-#' @param p0 Optional: Prior probabilities associated with the betas
+#' @param nu An optional argument (scalar in \code{[0,1]}) representing the trade-off between prediction and precision
+#' @param p0 Optional: Prior probabilities associated with the P matrix
 #' @param w0 Optional: Prior probabilities associated with the error terms
-#' @param optim_method Optional: same as "method" argument for "optim" in "stats"
+#' @param optim_method Optional: same as the "method" argument for the "optim" function in "stats"
 #'
-#' @return A list which includes estimated Largange Multipliers (LMs), Hessian matrix associated with LMs
+#' @return A list which includes estimated Lagrange Multipliers (LMs), Hessian matrix associated with LMs
 #' @export
 #'
 #' @examples

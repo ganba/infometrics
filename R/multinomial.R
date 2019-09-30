@@ -1,23 +1,25 @@
 #' Multinominal Choice Model
 #'
-#' @param Y Dependent Variable: an (NxJ) matrix where N represents number of individuals and J number of choices
-#' @param X Independent Variable(s): (NxK) where K represents number of Independent Variables
+#' @param Y Dependent Variable: an (NxJ) matrix where N represents the number of individuals and J is the number of choices
+#' @param X Independent Variable(s): (NxK) where K represents number of independent variables
 #' @param dimV An optional argument (scalar) representing dimensions of the support space for the error terms, default value is 5.
 #' @param nu An optional argument (scalar) representing the trade-off between prediction and precision
-#' @param p0 Optional: Prior probabilities associated with the betas
+#' @param p0 Optional: Prior probabilities associated with the unknown P matrix
 #' @param w0 Optional: Prior probabilities associated with the error terms
-#' @param optim_method Optional: same as "method" argument for "optim" in "stats"
+#' @param optim_method Optional: same as the "method" argument for the "optim" function in "stats"
 #'
 #' @return A list which includes estimated Largange Multipliers (LMs), Hessian matrix associated with LMs
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' Y <- c(0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1)
+#' Y <- matrix(Y, nrow = 4, byrow = TRUE)
+#' X <- c(1, 3, 1, 2, 1, 5, 1, 4)
+#' X <- matrix(X, nrow = 4, byrow = TRUE)
 #' gce_mult(Y, X)
 #' gce_mult(Y, X, 3)
 #' gce_mult(Y, X, 3, 0.6)
-#' }
 gce_mult <- function(Y, X, dimV, nu, p0, w0, optim_method = "BFGS") {
   dimX <- dim(X)
   N <- dimX[1]
