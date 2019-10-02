@@ -26,6 +26,19 @@
 #' @export
 #'
 #' @examples
+#' Y  <- c(1, 0, 0,
+#'         0, 1, 0,
+#'         0, 1, 0,
+#'         1, 0, 0,
+#'         0, 0, 1)
+#' X1 <- c(1, 2,
+#'         1, 3,
+#'         1, 1,
+#'         1, 5,
+#'         1, 4)
+#' X2 <- runif(30)
+#' X2 <- array(X2, c(5, 3, 2))
+#' gme_mixed(Y, X1, X2)
 gme_mixed <- function(Y, X1, X2, dimS, dimV, optim_method = "BFGS") {
   dY <- dim(Y)
   N  <- dY[1]
