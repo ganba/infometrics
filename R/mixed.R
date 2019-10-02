@@ -20,7 +20,7 @@
 #'   \item S2 - The (signal) information associated with the choice \code{j} of the individual \code{i}.
 #'   \item Pseudo_R2 - Pseudo R-squared.
 #'   \item ER - Entropy Ratio Statistic.
-#'   \item conv - Convergence (details in the help file of the optim function).
+#'   \item conv - convergence (same as in the optim function).
 #' }
 #'
 #' @export

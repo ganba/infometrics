@@ -4,8 +4,8 @@ Title: Estimation of regression models using the infometrics framework
 Version: 0.1.0
 Author: Ganbaatar Jambal <jg3169a@american.edu>
 Maintainer: Ganbaatar Jambal <jg3169a@american.edu>
-Description: This package estimates linear, matrix balancing (Markov), 
-  and multinomial choice models using the infometrics framework.
+Description: This package estimates Linear Regression Models, Matrix Balancing (Markov) Models,
+   Multinomial, Conditional and Mixed Choice Discrete Choice Models using the infometrics framework.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
