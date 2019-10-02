@@ -180,7 +180,7 @@ summary_gce_lin <- function(info_estim) {
   return(info_estim_all)
 }
 
-.gce_lin_obj <- function(lambda, y, X, Z, v, nu, p0, w0, N, K, ...) {
+gce_lin_obj <- function(lambda, y, X, Z, v, nu, p0, w0, N, K, ...) {
 
   Omega <- rep(0, K)
   for (k in 1:K) {
@@ -203,7 +203,7 @@ summary_gce_lin <- function(info_estim) {
 
 }
 
-.gce_lin_grad <- function(lambda, y, X, Z, v, nu, p0, w0, N, K, M, J) {
+gce_lin_grad <- function(lambda, y, X, Z, v, nu, p0, w0, N, K, M, J) {
 
   p <- matrix(0, K, M)
   Omega <- rep(0, K)

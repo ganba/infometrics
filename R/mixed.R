@@ -31,11 +31,13 @@
 #'         0, 1, 0,
 #'         1, 0, 0,
 #'         0, 0, 1)
+#' Y  <- matrix(Y, nrow = 5, byrow = TRUE)
 #' X1 <- c(1, 2,
 #'         1, 3,
 #'         1, 1,
 #'         1, 5,
 #'         1, 4)
+#' X1 <-matrix(X1, nrow = 5, byrow = TRUE)
 #' X2 <- runif(30)
 #' X2 <- array(X2, c(5, 3, 2))
 #' gme_mixed(Y, X1, X2)
@@ -60,7 +62,8 @@ gme_mixed <- function(Y, X1, X2, dimS, dimV, optim_method = "BFGS") {
   }
   v <- matrix(seq(from = -1, to = 1, length.out = H), nrow = 1)
 
-  param0 <- rep(0, (K1 * (J - 1) + K2 + N))
+  dim_param <- as.vector(K1*(J - 1) + K2 + N)
+  param0 <- rep(0, dim_param)
   gme_optim <- optim(param0, gme_mixed_obj, gme_mixed_grad,
                      Y = Y, X1 = X1, X2 = X2, s = s, v = v,
                      N = N, J = J, K1 = K1, K2 = K2, M = M,
@@ -69,8 +72,8 @@ gme_mixed <- function(Y, X1, X2, dimS, dimV, optim_method = "BFGS") {
   lambda <- param[1:K1 * (J - 1)]
   lambda <- matrix(lambda, K1, (J - 1))
   lambda <- cbind(rep(0, K1), lambda)
-  alpha  <- param((K1 * (J - 1) + 1):(K1 * (J - 1) + K2))
-  rho    <- param[-1:(K1 * (J - 1) + K2)]
+  alpha  <- param[(K1 * (J - 1) + 1):(K1 * (J - 1) + K2)]
+  rho    <- param[-(1:(K1 * (J - 1) + K2))]
 
   temp1  <- X1 %*% lambda
   temp2  <- matrix(0, N, J)
@@ -127,7 +130,7 @@ gme_mixed <- function(Y, X1, X2, dimS, dimV, optim_method = "BFGS") {
       }
     }
   }
-  me_x1 <- apply(dp_dx, c(2, 3), sum)
+  me_x1 <- apply(dp_dx1, c(2, 3), sum)
 
   dphi_dx2 <- array(0, c(N, J, M, K2))
   for (i in 1:N) {
@@ -148,7 +151,7 @@ gme_mixed <- function(Y, X1, X2, dimS, dimV, optim_method = "BFGS") {
       }
     }
   }
-  me_x2 <- apply(dp_dx, c(3), sum)
+  me_x2 <- apply(dp_dx2, c(3), sum)
 
   H_phi <-  phi * log(phi)
   S1    <- -sum(H_phi) / (N * J * log(M))
@@ -171,14 +174,14 @@ gme_mixed_obj <- function(param, Y, X1, X2, s, v, N, J, K1, K2, M, H) {
   lambda <- param[1:K1 * (J - 1)]
   lambda <- matrix(lambda, K1, (J - 1))
   lambda <- cbind(rep(0, K1), lambda)
-  alpha  <- param((K1 * (J - 1) + 1):(K1 * (J - 1) + K2))
-  rho    <- param[-1:(K1 * (J - 1) + K2)]
+  alpha  <- param[(K1 * (J - 1) + 1):(K1 * (J - 1) + K2)]
+  rho    <- param[-(1:(K1 * (J - 1) + K2))]
 
   temp1  <- X1 %*% lambda
   temp2  <- matrix(0, N, J)
   for (i in 1:N) {
     for (j in 1:J) {
-      temp2[i, j] <- sum(alpha * X[i, j, ])
+      temp2[i, j] <- sum(alpha * X2[i, j, ])
     }
   }
 
@@ -218,8 +221,8 @@ gme_mixed_grad <- function(param, Y, X1, X2, s, v, N, J, K1, K2, M, H) {
   lambda <- param[1:K1 * (J - 1)]
   lambda <- matrix(lambda, K1, (J - 1))
   lambda <- cbind(rep(0, K1), lambda)
-  alpha  <- param((K1 * (J - 1) + 1):(K1 * (J - 1) + K2))
-  rho    <- param[-1:(K1 * (J - 1) + K2)]
+  alpha  <- param[(K1 * (J - 1) + 1):(K1 * (J - 1) + K2)]
+  rho    <- param[-(1:(K1 * (J - 1) + K2))]
 
   temp1  <- X1 %*% lambda
   temp2  <- matrix(0, N, J)

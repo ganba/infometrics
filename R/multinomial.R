@@ -121,7 +121,7 @@ summary_mult <- function(gme_mult_results) {
   return(est_sum_all)
 }
 
-.gce_mult_obj <- function(lambda_vector, Y, X, v, nu, p0, w0, N, K, J, M) {
+gce_mult_obj <- function(lambda_vector, Y, X, v, nu, p0, w0, N, K, J, M) {
 
   lambda <- matrix(lambda_vector, K, (J - 1))
   lambda <- cbind(rep(0, K), lambda)
@@ -144,7 +144,7 @@ summary_mult <- function(gme_mult_results) {
 
 }
 
-.gce_mult_grad <- function(lambda_vector, Y, X, v, nu, p0, w0, N, K, J, M) {
+gce_mult_grad <- function(lambda_vector, Y, X, v, nu, p0, w0, N, K, J, M) {
 
   lambda <- matrix(lambda_vector, K, (J - 1))
   lambda <- cbind(rep(0, K), lambda)

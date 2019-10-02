@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' y <- c(0.3, 0.2, 0.5)
-#' x <- c(0.1, 0.4. 0.2, 0.3)
+#' x <- c(0.1, 0.4, 0.2, 0.3)
 #' gce_matrix(y, x)
 #' gce_matrix(y, x, 3)
 #' gce_matrix(y, x, 3, 0.6)
