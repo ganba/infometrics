@@ -1,8 +1,10 @@
 #' Mixed Discrete Choice Model
 #'
-#' @param Y Dependent Variable: an (NxJ) matrix where N represents the number of individuals and J is the number of choices
-#' @param X Independent Variable(s): (NxJxK) where J represents the number of choices, K represents the number of independent variables
-#' @param dimV An optional argument (scalar) representing dimensions of the support space for the error terms, default value is 5.
+#' @param Y  Dependent Variable: an (NxJ) matrix where N represents the number of individuals and J is the number of choices
+#' @param X1 Alternative-invariant: (NxK1) matrix where K1 represents the number of regressors
+#' @param X2 Alternative-variant: (NxJxK2) where J represents the number of choices, K2 represents the number of regressors
+#' @param dimS An optional argument (scalar) representing dimensions of the support space for the phi probabilities, default value is 3
+#' @param dimV An optional argument (scalar) representing dimensions of the support space for the error terms, default value is 5
 #' @param optim_method Optional: same as the "method" argument for the "optim" function in "stats"
 #'
 #' @return A list which includes estimated Largange Multipliers (LMs), Hessian matrix associated with LMs
@@ -32,16 +34,20 @@ gme_mixed <- function(Y, X1, X2, dimS, dimV, optim_method = "BFGS") {
   v <- matrix(seq(from = -1, to = 1, length.out = H), nrow = 1)
 
   param0 <- rep(0, (K1 * (J - 1) + K2 + N))
-  gce_optim <- optim(param0, gme_mixed_obj, gme_mixed_grad,
+  gme_optim <- optim(param0, gme_mixed_obj, gme_mixed_grad,
                      Y = Y, X1 = X1, X2 = X2, s = s, v = v,
                      N = N, J = J, K1 = K1, K2 = K2, M = M,
                      H = H, method = optim_method)
-  lambda_hat <- matrix(gce_optim$par, K, J - 1)
-  lambda_hat <- cbind(rep(0, K), lambda_hat)
-  gce_all <- list("par" = lambda_hat, "convergence" = gce_optim$convergence,
-                  "H" = - gce_optim$value, "Y" = Y, "X" = X, "v" = v, "nu" = nu,
-                  "p0"= p0, "w0" = w0, "type" = "gce")
-  return(gce_all)
+  param <- gme_optim$par
+  lambda <- param[1:K1 * (J - 1)]
+  lambda <- matrix(lambda, K1, (J - 1))
+  lambda <- cbind(rep(0, K1), lambda)
+  alpha  <- param((K1 * (J - 1) + 1):(K1 * (J - 1) + K2))
+  rho    <- param[-1:(K1 * (J - 1) + K2)]
+  gme_all <- list("lambda" = lambda, "alpha" = alpha, "rho" = rho,
+                  "convergence" = gme_optim$convergence,
+                  "H" = gme_optim$value)
+  return(gme_all)
 
 }
 
