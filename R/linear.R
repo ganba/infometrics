@@ -32,6 +32,8 @@
 #' }
 #' @export
 #'
+#' @importFrom stats optim sd qchisq
+#'
 #' @examples
 #' set.seed(123)
 #' y <- runif(100)
