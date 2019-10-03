@@ -4,9 +4,10 @@
 #' @param X  An (NxK) matrix representing a set of independent variables where K is number of regressors
 #' @param Z  An (KxM) matrix representing support spaces  the for regression coefficients where M is the dimension of the support spaces
 #' @param v  An optional argument representing a support space for error terms:
-#'           (a) if missing then \strong{v} is a (5x1) vector of equally spaced points in \code{\strong{[a,b]}} interval;
-#'           (b) if a scalar (e.g. \strong{H}) then \strong{v} is a (Hx1) vector of equally spaced points in \code{\strong{[a,b]}} interval.
-#'           Please note that the \code{\strong{[a,b]}} interval is centered around zero, and \strong{a} and \strong{b} are calculated
+#'           (a) if missing then \strong{v} is a (5x1) vector of equally spaced points in \code{[a,b]} interval;
+#'           (b) if a scalar (e.g. \strong{H}) then \strong{v} is a (Hx1) vector of equally spaced points in \code{[a,b]} interval;
+#'           (c) can be a user-supplied vector; (d) can be a user-supplied matrix.
+#'           Please note that in case (a) and (b) the \code{[a,b]} interval is centered around zero, and \strong{a} and \strong{b} are calculated
 #'           using the empirical three-sigma rule Pukelsheim (1994).
 #' @param nu Optional: A weight parameter representing the trade-off between prediction and precision
 #' @param p0 Optional: Prior probabilities associated with the regression coefficients
@@ -14,6 +15,21 @@
 #' @param optim_method Optional: same as the "method" argument for the "optim" function in "stats"
 #'
 #' @return A list
+#' \itemize{
+#'   \item lambda - Estimated Lagrange Multipliers.
+#'   \item beta - Regression coefficients.
+#'   \item var_beta - Variance-covariance matrix of the regression coefficients.
+#'   \item p - Estimated probabilities associated with the regressions coefficients.
+#'   \item w - Estimated probabilities associated with the error terms.
+#'   \item e - Estimated Residuals.
+#'   \item Sp - The (signal) information of the whole system.
+#'   \item Sp_k - The (signal) information associated with the choice k-th regression coefficient.
+#'   \item H_p_w - Value of the joint entropies of \code{p} and \code{w} at the final iteration.
+#'   \item dH - Delta-H from the Entropy Concentration Theorem.
+#'   \item ER - Entropy Ratio Statistic.
+#'   \item Pseudo_R2 - Pseudo R-squared.
+#'   \item conv - Hessian matrix associated with the estimated Lagrange multipliers.
+#' }
 #' @export
 #'
 #' @examples
@@ -58,46 +74,7 @@ gce_lin <- function(y, X, Z, v, nu, p0, w0, optim_method = "BFGS") {
                      v = v, nu = nu, p0 = p0, w0 = w0, N = N, K = K, M = M,
                      J = dimV, method = optim_method, hessian = T)
 
-  gce_all <- list("par" = gce_optim$par, "hessian" = gce_optim$hessian,
-                  "convergence" = gce_optim$convergence, "H" = gce_optim$value,
-                  "y" = y, "X" = X, "Z" = Z, "v" = v, "nu" = nu,
-                  "p0" = p0, "w0" = w0, "type" = "gme")
-
-  return(gce_all)
-
-}
-
-#' Summary output (Linear Regression Model)
-#'
-#' @param info_estim Output form the gce_lin function
-#'
-#' @return Estimated parameters
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' gce_lin(y, X, Z)
-#' gce_lin(y, X, Z, 3)
-#' gce_lin(y, X, Z, 3, 0.6)
-#' }
-summary_gce_lin <- function(info_estim) {
-
-  # Access contents of the list object
-  y  <- info_estim$y
-  X  <- info_estim$X
-  Z  <- info_estim$Z
-  v  <- info_estim$v
-  nu <- info_estim$nu
-  p0 <- info_estim$p0
-  w0 <- info_estim$w0
-
-  # Dimensions
-  dimX <- dim(X)
-  N <- dimX[1]
-  K <- dimX[2]
-  M <- dim(Z)[2]
-
-  lambda_hat <- info_estim$par
+  lambda_hat <- gce_optim$par
 
   p <- matrix(0, K, M)
   Omega <- rep(0, K)
@@ -123,7 +100,7 @@ summary_gce_lin <- function(info_estim) {
       w[n, ] <- w[n, ] / Psi[n]
     }
     e <- w %*% matrix(v, ncol = 1)
-  } else if (is.matrix(v) && dim(v)[1]==N) {
+  } else if (is.matrix(v) && dim(v)[1] == N) {
     J <- dim(v)[2]
     w <- matrix(0, N, J)
     for (n in 1:N) {
@@ -173,11 +150,12 @@ summary_gce_lin <- function(info_estim) {
   CC <- K * (M - 1) + N * (J - 2)
   dH <- qchisq(c(0.9, 0.95, 0.99), df = CC) / (2 * N)
   # All outputs
-  info_estim_all <- list("lambda_hat" = lambda_hat, "beta_hat" = beta_hat, "var_beta" = var_beta,
-                         "p_hat" = p, "w_hat" = w, "e_hat" = e, "Sp" = Sp, "S_pk" = S_pk,
-                         "H" = info_estim$H, "dH" = dH, "ER" = ER, "R2" = R2,
-                         "convergence" = info_estim$convergence)
+  info_estim_all <- list("lambda" = lambda_hat, "beta" = beta_hat, "var_beta" = var_beta,
+                         "p" = p, "w" = w, "e" = e, "Sp" = Sp, "S_pk" = S_pk,
+                         "H_p_w" = gce_optim$H, "dH" = dH, "ER" = ER, "Pseudo_R2" = R2,
+                         "conv" = gce_optim$convergence)
   return(info_estim_all)
+
 }
 
 gce_lin_obj <- function(lambda, y, X, Z, v, nu, p0, w0, N, K, ...) {
