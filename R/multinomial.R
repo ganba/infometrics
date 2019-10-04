@@ -8,7 +8,23 @@
 #' @param w0 Optional: Prior probabilities associated with the error terms
 #' @param optim_method Optional: same as the "method" argument for the "optim" function in "stats"
 #'
-#' @return A list which includes estimated Largange Multipliers (LMs), Hessian matrix associated with LMs
+#' @return This function returns a list which has the following elements.
+#' \itemize{
+#'   \item lambda - Estimated Lagrange Multipliers.
+#'   \item hess - Hessian matrix associated with the Lagrange Multipliers.
+#'   \item p - Estimated transition matrix.
+#'   \item w - Estimated probabilities associated with the error terms.
+#'   \item e - Estimated Residuals.
+#'   \item marg_eff - Marginal Effects of independent variables on the individual choices.
+#'   \item Sp - The (signal) information of the whole system.
+#'   \item S_p_j - Reflects the (signal) information in each moment.
+#'   \item p_e_j - Error bounds based on the weaker version of the Fano's inequality
+#'   \item H_p_w - Value of the joint entropies of \code{p} and \code{w} at the final iteration.
+#'   \item ER - Entropy Ratio Statistic.
+#'   \item Pseudo_R2 - Pseudo R-squared.
+#'   \item CM - Confusion matrix.
+#'   \item conv - convergence (same as in the optim function).
+#' }
 #'
 #' @export
 #'
@@ -32,7 +48,10 @@ gce_mult <- function(Y, X, dimV, nu, p0, w0, optim_method = "BFGS") {
   }
   v <- matrix(seq(from = -1, to = 1, length.out = M), nrow = 1)
   if (missing(nu)) nu <- 0.5
-  if (missing(p0)) p0 <- matrix(1 / J, N, J)
+  if (missing(p0)) {
+    p0 <- matrix(1 / N, N, J)
+    p0_is_uniform <- TRUE
+  }
   if (missing(w0)) w0 <- array(1 / M, c(N, J, M))
 
   lambda0 <- rep(0, K * (J - 1))
@@ -40,46 +59,12 @@ gce_mult <- function(Y, X, dimV, nu, p0, w0, optim_method = "BFGS") {
                      Y = Y, X = X, v = v, nu = nu, p0 = p0,
                      w0 = w0, N = N, K = K, J = J, M = M,
                      method = optim_method)
-  lambda_hat <- matrix(gce_optim$par, K, J - 1)
-  lambda_hat <- cbind(rep(0, K), lambda_hat)
-  gce_all <- list("par" = lambda_hat, "convergence" = gce_optim$convergence,
-                  "H" = - gce_optim$value, "Y" = Y, "X" = X, "v" = v, "nu" = nu,
-                  "p0"= p0, "w0" = w0, "type" = "gce")
-  return(gce_all)
 
-}
-
-#' Title
-#'
-#' @param gme_mult_results b
-#'
-#' @return z
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' gce_mult(Y, X)
-#' gce_mult(Y, X, 3)
-#' gce_mult(Y, X, 3, 0.6)
-#' }
-summary_mult <- function(gme_mult_results) {
-  Y  <- gme_mult_results$Y
-  X  <- gme_mult_results$X
-  v  <- gme_mult_results$v
-  nu <- gme_mult_results$nu
-  p0 <- gme_mult_results$p0
-  w0 <- gme_mult_results$w0
-  beta <- -gme_mult_results$par
-  lambda <- gme_mult_results$par
-
-  dimX <- dim(X)
-  N <- dimX[1]
-  K <- dimX[2]
-  J <- dim(Y)[2]
-  M <- length(v)
+  lambda <- matrix(gce_optim$par, K, J - 1)
+  lambda <- cbind(rep(0, K), lambda)
 
   temp  <- X %*% lambda
-  p     <- p0 * exp(temp / (1 - nu))
+  p <- p0 * exp(temp / (1 - nu))
   Omega <- apply(p, 1, sum)
   for (i in 1:N) {
     p[i, ] <- p[i, ] / Omega[i]
@@ -90,22 +75,14 @@ summary_mult <- function(gme_mult_results) {
   e   <- matrix(0, N, J)
   for (i in 1:N) {
     for (j in 1:J) {
-      w[i, j, ] <- exp(temp[i, j] * v / nu)
+      w[i, j, ] <- w0[i, j, ] * exp(temp[i, j] * v / nu)
       Psi[i, j] <- sum(w[i, j, ])
       w[i, j, ] <- w[i, j, ] / Psi[i, j]
-      e[i, j]   <- sum(v * w[i, j, ])
+      e[i, j]   <- sum(as.vector(v) * w[i, j, ])
     }
   }
 
-  y_hat <- p + e
-
-  CM <- matrix(0, J, J)
-  for (n in 1:N) {
-    t1 <- match(1, Y[n, ])
-    t2 <- which.max(y_hat[n, ])
-    CM[t1, t2] <- CM[t1, t2] + 1
-  }
-
+  # Marginal effects
   dp_dx <- array(0, c(N, J, K))
   for (i in 1:N) {
     for (j in 1:J) {
@@ -116,9 +93,52 @@ summary_mult <- function(gme_mult_results) {
   }
   ave_dp_dx <- apply(dp_dx, c(2, 3), mean)
 
-  est_sum_all <- list("y_hat" = y_hat,"p_hat" = p, "w_hat" = w, "e_hat" = e,
-                      "CM" = CM, "beta" = beta, "marg_eff" = ave_dp_dx)
-  return(est_sum_all)
+  # Confusion matrix
+  CM <- matrix(0, J, J)
+  for (n in 1:N) {
+    t1 <- match(1, Y[n, ])
+    t2 <- which.max(p[n, ])
+    CM[t1, t2] <- CM[t1, t2] + 1
+  }
+
+  # Information measures, Golan (1988)
+  if (p0_is_uniform == TRUE) {
+    Sp <- -sum(p * log(p)) / (N * log(J))
+  } else {
+    Sp <-  sum(p * log(p)) / sum(p0 * log(p0))
+  }
+
+  S_p_i <- rep(0, N)
+  for (i in 1:N) {
+    if (p0_is_uniform == TRUE) {
+      S_p_i[i] <- -sum(p[i, ] * log(p[i, ])) / log(J)
+    } else {
+      S_p_i[i] <-  sum(p[i, ] * log(p[i, ])) / sum(p0[i, ] * log(p0[i, ]))
+    }
+  }
+
+  # Error bounds based on the Fano's [weaker] inequality
+  p_e_i <- rep(0, N)
+  for (i in 1:N) {
+    p_e_i[i] <- S_p_i[i] - log(J)
+  }
+
+  # Entropy ratio Statistic
+  if (p0_is_uniform == TRUE) {
+    ER <- 2 * N * log(J) * (1 - Sp)
+  } else {
+    R <- 2 * (-sum(p0[i, ] * log(p0[i, ]))) * (1 - Sp)
+  }
+  # Pseudo R-squared
+  R2 <- 1 - Sp
+
+  info_estim_all <- list("lambda" = lambda, "hess" = gce_optim$hessian, "p" = p, "w" = w, "e" = e,
+                         "marg_eff" = ave_dp_dx,"Sp" = Sp, "S_p_i" = S_p_i, "p_e_i" = p_e_i,
+                         "H_p_w" = - gce_optim$value, "ER" = ER, "Pseudo_R2" = R2,
+                         "CM" = CM, "conv" = gce_optim$convergence)
+
+  return(info_estim_all)
+
 }
 
 gce_mult_obj <- function(lambda_vector, Y, X, v, nu, p0, w0, N, K, J, M) {

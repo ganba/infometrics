@@ -13,6 +13,7 @@
 #' @return This function returns a list which has the following elements.
 #' \itemize{
 #'   \item lambda - Estimated Lagrange Multipliers.
+#'   \item hess - Hessian matrix associated with the Lagrange Multipliers.
 #'   \item p - Estimated transition matrix.
 #'   \item w - Estimated probabilities associated with the error terms.
 #'   \item e - Estimated Residuals.
@@ -52,7 +53,7 @@ gce_matrix <- function(y, x, dimV, nu, p0, w0, optim_method = "BFGS") {
   gce_optim <- optim(lambda0, gce_matrix_obj, gce_matrix_grad,
                      y = y, x = x, v = v, nu = nu, p0 = p0,
                      w0 = w0, N = N, J = J, M = M,
-                     method = optim_method)
+                     method = optim_method, hessian = TRUE)
   lambda <- gce_optim$par
 
   p     <- matrix(0, N, J)
@@ -81,15 +82,15 @@ gce_matrix <- function(y, x, dimV, nu, p0, w0, optim_method = "BFGS") {
   if (p0_is_uniform == TRUE) {
     Sp <- -sum(p * log(p)) / (J * log(N))
   } else {
-    Sp <- sum(p * log(p)) / sum(p0 * log(p0))
+    Sp <-  sum(p * log(p)) / sum(p0 * log(p0))
   }
 
   S_p_j <- rep(0, J)
   for (j in 1:J) {
     if (p0_is_uniform == TRUE) {
-      S_p_j[j] <- sum(p[, j] * log(p[, j])) / log(N)
+      S_p_j[j] <- -sum(p[, j] * log(p[, j])) / log(N)
     } else {
-      S_p_j[j] <- sum(p[, j] * log(p[, j])) / sum(p0[, j] * log(p0[, j]))
+      S_p_j[j] <-  sum(p[, j] * log(p[, j])) / sum(p0[, j] * log(p0[, j]))
     }
   }
 
@@ -110,7 +111,8 @@ gce_matrix <- function(y, x, dimV, nu, p0, w0, optim_method = "BFGS") {
 
   info_estim_all <- list("lambda" = lambda, "p" = p, "w" = w, "e" = e, "Sp" = Sp,
                          "S_p_j" = S_p_j, "p_e_j" = p_e_j, "H_p_w" = - gce_optim$value,
-                         "ER" = ER, "Pseudo_R2" = R2, "conv" = gce_optim$convergence)
+                         "ER" = ER, "Pseudo_R2" = R2, "conv" = gce_optim$convergence,
+                         "hess" = gce_optim$hessian)
 
   return(info_estim_all)
 
