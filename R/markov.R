@@ -109,7 +109,7 @@ gce_matrix <- function(y, x, dimV, nu, p0, w0, optim_method = "BFGS") {
   R2 <- 1 - Sp
 
   info_estim_all <- list("lambda" = lambda, "p" = p, "w" = w, "e" = e, "Sp" = Sp,
-                         "S_p_j" = S_p_j, "p_e_j" = p_e_j, "H_p_w" = - gce_optim$H,
+                         "S_p_j" = S_p_j, "p_e_j" = p_e_j, "H_p_w" = - gce_optim$value,
                          "ER" = ER, "Pseudo_R2" = R2, "conv" = gce_optim$convergence)
 
   return(info_estim_all)
