@@ -14,7 +14,7 @@
 #' @param w0 Optional: Prior probabilities associated with the error terms
 #' @param optim_method Optional: same as the "method" argument for the "optim" function in "stats"
 #'
-#' @return A list
+#' @return This function returns a list which has the following elements.
 #' \itemize{
 #'   \item lambda - Estimated Lagrange Multipliers.
 #'   \item beta - Regression coefficients.
@@ -23,12 +23,12 @@
 #'   \item w - Estimated probabilities associated with the error terms.
 #'   \item e - Estimated Residuals.
 #'   \item Sp - The (signal) information of the whole system.
-#'   \item Sp_k - The (signal) information associated with the choice k-th regression coefficient.
+#'   \item Sp_k - The (signal) information associated with the k-th regression coefficient.
 #'   \item H_p_w - Value of the joint entropies of \code{p} and \code{w} at the final iteration.
 #'   \item dH - Delta-H from the Entropy Concentration Theorem.
 #'   \item ER - Entropy Ratio Statistic.
 #'   \item Pseudo_R2 - Pseudo R-squared.
-#'   \item conv - Hessian matrix associated with the estimated Lagrange multipliers.
+#'   \item conv - convergence (same as in the optim function).
 #' }
 #' @export
 #'
@@ -115,7 +115,7 @@ gce_lin <- function(y, X, Z, v, nu, p0, w0, optim_method = "BFGS") {
     e <- apply(w * v, 1, sum)
   }
 
-  # Normalized entropy
+  # Information measures
   Sp <- sum(p * log(p)) / sum(p0 * log(p0))
   S_pk <- rep(0, K)
   for (k in 1:K) {
