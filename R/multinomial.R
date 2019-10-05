@@ -51,6 +51,8 @@ gce_mult <- function(Y, X, dimV, nu, p0, w0, optim_method = "BFGS") {
   if (missing(p0)) {
     p0 <- matrix(1 / N, N, J)
     p0_is_uniform <- TRUE
+  } else {
+    p0_is_uniform <- FALSE
   }
   if (missing(w0)) w0 <- array(1 / M, c(N, J, M))
 

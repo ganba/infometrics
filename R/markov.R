@@ -46,6 +46,8 @@ gce_matrix <- function(y, x, dimV, nu, p0, w0, optim_method = "BFGS") {
   if (missing(p0)) {
     p0 <- matrix(1 / N, N, J)
     p0_is_uniform <- TRUE
+  } else {
+    p0_is_uniform <- FALSE
   }
   if (missing(w0)) w0 <- matrix(1 / M, N, M)
 
