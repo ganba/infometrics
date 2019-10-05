@@ -60,7 +60,7 @@ gce_mult <- function(Y, X, dimV, nu, p0, w0, optim_method = "BFGS") {
   gce_optim <- optim(lambda0, gce_mult_obj, gce_mult_grad,
                      Y = Y, X = X, v = v, nu = nu, p0 = p0,
                      w0 = w0, N = N, K = K, J = J, M = M,
-                     method = optim_method)
+                     method = optim_method, hessian = TRUE)
 
   lambda <- matrix(gce_optim$par, K, J - 1)
   lambda <- cbind(rep(0, K), lambda)

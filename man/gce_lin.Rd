@@ -47,7 +47,11 @@ This function returns a list which has the following elements.
 }
 }
 \description{
-Linear Regression Model
+This function estimates the General Linear Model (GLM) using the infometrics framework.
+             The function provides possibilities to incorporate prior information, adjust weights on
+             precision and prediction. Output of the function contains statistics necessary for
+             inference and diagnostics. Further details can be found in Golan, Judge and Miller
+             (1996, Chapter 6), Golan (2008, Chapter 6)
 }
 \examples{
 set.seed(123)
