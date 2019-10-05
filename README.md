@@ -8,10 +8,10 @@
 <!-- badges: end -->
 
 The goal of the infometrics package is to provide tools for estimation,
-statistical inference of Linear Inverse Models with Noise, General
-Linear Models with Noise, Matrix Balancing (Markov) Models, Multinomial,
-Conditional and Mixed Choice Discrete Choice Models using the
-infometrics framework.
+statistical inference of the Linear Inverse Models with Noise, the
+General Linear Models (GLM) with Noise, Matrix Balancing (Markov)
+Models, Multinomial, Conditional and Mixed Choice Discrete Choice Models
+using the infometrics framework.
 
 ## Installation
 
