@@ -49,8 +49,5 @@ Linear Inverse Problem with Noise
 set.seed(123)
 y <- runif(100)
 X <- matrix(runif(200), nrow = 100, ncol = 2)
-Z <- matrix(c(-1, 0, 1, -1, 0, 1), nrow = 2, byrow = TRUE)
-gce_lin(y, X, Z)
-gce_lin(y, X, Z, 3)
-gce_lin(y, X, Z, 3, 0.6)
+lin_inv(y, X)
 }

@@ -35,10 +35,7 @@
 #' set.seed(123)
 #' y <- runif(100)
 #' X <- matrix(runif(200), nrow = 100, ncol = 2)
-#' Z <- matrix(c(-1, 0, 1, -1, 0, 1), nrow = 2, byrow = TRUE)
-#' gce_lin(y, X, Z)
-#' gce_lin(y, X, Z, 3)
-#' gce_lin(y, X, Z, 3, 0.6)
+#' lin_inv(y, X)
 lin_inv <- function(y, X, v, nu, p0, w0, optim_method = "BFGS") {
 
   dimX <- dim(X)
@@ -81,7 +78,7 @@ lin_inv <- function(y, X, v, nu, p0, w0, optim_method = "BFGS") {
 
   p <- rep(0, N)
   for (n in 1:N) {
-    p[n] <- p0[n] * exp(lambda * X[, n] / (1 - nu))
+    p[n] <- p0[n] * exp(sum(lambda * X[, n]) / (1 - nu))
   }
   Omega <- sum(p)
   p <- p / Omega
@@ -120,7 +117,7 @@ lin_inv <- function(y, X, v, nu, p0, w0, optim_method = "BFGS") {
   # All outputs
   info_estim_all <- list("lambda" = lambda, "hess" = gce_optim$hessian,
                          "p" = p, "p_e" = p_e, "w" = w, "e" = e, "Sp" = Sp,
-                         "H_p_w" = - gce_optim$H, "ER" = ER, "Pseudo_R2" = R2,
+                         "H_p_w" = - gce_optim$value, "ER" = ER, "Pseudo_R2" = R2,
                          "conv" = gce_optim$convergence)
   return(info_estim_all)
 
@@ -130,7 +127,7 @@ lin_inv_obj <- function(lambda, y, X, v, nu, p0, w0, N, J, M) {
 
   p <- rep(0, N)
   for (n in 1:N) {
-    p[n] <- p0[n] * exp(lambda * X[, n] / (1 - nu))
+    p[n] <- p0[n] * exp(sum(lambda * X[, n]) / (1 - nu))
   }
   Omega <- sum(p)
 
@@ -154,7 +151,7 @@ lin_inv_grad <- function(lambda, y, X, v, nu, p0, w0, N, J, M) {
 
   p <- rep(0, N)
   for (n in 1:N) {
-    p[n] <- p0[n] * exp(lambda * X[, n] / (1 - nu))
+    p[n] <- p0[n] * exp(sum(lambda * X[, n]) / (1 - nu))
   }
   Omega <- sum(p)
   p <- p / Omega
