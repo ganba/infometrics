@@ -1,0 +1,53 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# infometrics
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of the infometrics package is to provide tools for estimation, statistical inference of Linear Inverse Models with Noise, General Linear Models with Noise, Matrix Balancing (Markov) Models, Multinomial, Conditional and Mixed Choice Discrete Choice Models using the infometrics framework.
+
+## Installation
+
+You can install the released version of infometrics from [CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("infometrics")
+```
+
+And the development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("ganba/infometrics")
+```
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(infometrics)
+## basic example code
+```
+
+An example of the Matrix Balancing Problem.
+
+```{r cars}
+y <- c(0.3, 0.2, 0.5)
+x <- c(0.1, 0.25, 0.3, 0.2, 0.15)
+gce_matrix(y, x)
+```
+

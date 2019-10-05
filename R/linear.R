@@ -1,4 +1,6 @@
-#' Linear Regression Model
+#' @title Linear Regression Model
+#'
+#' @description
 #'
 #' @param y  An (Nx1) vector representing the dependent variable where N is the number of observations
 #' @param X  An (NxK) matrix representing a set of independent variables where K is number of regressors
