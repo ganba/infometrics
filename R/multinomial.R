@@ -96,10 +96,11 @@ gce_mult <- function(Y, X, dimV, nu, p0, w0, optim_method = "BFGS") {
   ave_dp_dx <- apply(dp_dx, c(2, 3), mean)
 
   # Confusion matrix
-  CM <- matrix(0, J, J)
+  y_hat <- p + e
+  CM    <- matrix(0, J, J)
   for (n in 1:N) {
     t1 <- match(1, Y[n, ])
-    t2 <- which.max(p[n, ])
+    t2 <- which.max(y_hat[n, ])
     CM[t1, t2] <- CM[t1, t2] + 1
   }
 
@@ -129,7 +130,7 @@ gce_mult <- function(Y, X, dimV, nu, p0, w0, optim_method = "BFGS") {
   if (p0_is_uniform == TRUE) {
     ER <- 2 * N * log(J) * (1 - Sp)
   } else {
-    R <- 2 * (-sum(p0[i, ] * log(p0[i, ]))) * (1 - Sp)
+    ER <- 2 * (-sum(p0[i, ] * log(p0[i, ]))) * (1 - Sp)
   }
 
   # Pseudo R-squared
