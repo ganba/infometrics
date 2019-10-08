@@ -46,7 +46,7 @@ gce_mult <- function(Y, X, dimV, nu, p0, w0, optim_method = "BFGS") {
   } else {
     M <- dimV
   }
-  v <- matrix(seq(from = -1, to = 1, length.out = M), nrow = 1)
+  seq(from = -1, to = 1, length.out = M)
   if (missing(nu)) nu <- 0.5
   if (missing(p0)) {
     p0 <- matrix(1 / N, N, J)
@@ -89,11 +89,11 @@ gce_mult <- function(Y, X, dimV, nu, p0, w0, optim_method = "BFGS") {
   for (i in 1:N) {
     for (j in 1:J) {
       for (k in 1:K) {
-        dp_dx[i, j, k] <- p[i, j] * (lambda[k, j] - sum(lambda[k, ] * p[i, ]))
+        dp_dx[i, j, k] <- (p[i, j] / (1 - nu)) * (lambda[k, j] - sum(lambda[k, ] * p[i, ]))
       }
     }
   }
-  ave_dp_dx <- apply(dp_dx, c(2, 3), mean)
+  ave_dp_dx <- apply(dp_dx, c(2, 3), median)
 
   # Confusion matrix
   CM <- matrix(0, J, J)
@@ -186,7 +186,7 @@ gce_mult_grad <- function(lambda_vector, Y, X, v, nu, p0, w0, N, K, J, M) {
       w[i, j, ] <- w0[i, j, ] * exp(temp[i, j] * v / nu)
       Psi[i, j] <- sum(w[i, j, ])
       w[i, j, ] <- w[i, j, ] / Psi[i, j]
-      e[i, j]   <- sum(as.vector(v) * w[i, j, ])
+      e[i, j]   <- sum(v * w[i, j, ])
     }
   }
 
