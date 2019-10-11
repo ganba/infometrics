@@ -197,8 +197,8 @@ gce_mult_grad <- function(lambda_vector, Y, X, v, nu, p0, w0, N, K, J, M) {
   for (j in 2:J) {
     for (k in 1:K) {
       dlambda[index_lambda] <- - sum(Y[, j] * X[, k]) +
-        sum(p[, j] * X[, k]) +
-        sum(e[, j] * X[, k])
+                                 sum(p[, j] * X[, k]) +
+                                 sum(e[, j] * X[, k])
       index_lambda <- index_lambda + 1
     }
   }
