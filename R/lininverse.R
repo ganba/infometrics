@@ -178,3 +178,16 @@ lin_inv_grad <- function(lambda, y, X, v, nu, p0, w0, N, J, M) {
 
 }
 
+ce_lin_obj <- function(lambda, y, X, p0, N, J) {
+
+  p <- rep(0, N)
+  for (n in 1:N) {
+    p[n] <- p0[n] * exp(sum(lambda * X[, n]))
+  }
+  Omega <- sum(p)
+
+  l <- -sum(lambda * y) + (1 - nu) * log(Omega) + nu * sum(log(Psi))
+  return(l)
+
+}
+

@@ -1,0 +1,69 @@
+---
+title: "Vignette for the infometrics package"
+output: rmarkdown::html_vignette
+bibliography: bibs_info_pkg.bib
+vignette: >
+  %\VignetteIndexEntry{Vignette_infometrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo = FALSE}
+library(infometrics)
+```
+
+# Introduction
+
+This section introduces several ideas which serve as foundations of the info-metrics framework. For the sake of demonstration, let's use the Jaynes dice problem (@jaynes1963information; @jaynes1983concentration). 
+
+Suppose we have a six-sided die where the set of possible outcomes is $\mathbf{x} = \{1,2,3,4,5,6\}$ and the set of probabilities associated with the outcomes is $\mathbf{p} = \{p_1, p_2, p_3, p_4, p_5, p_6\}$. We don't know whether the die is fair or faulty. Now, let's assume that we've been told that after a large number of tosses the average number of spots ($\mu$) was $2.8$. Based on this piece of information, one might conclude that the die is faulty, because if the die was fair then we should have ($\mu=3.5$) and a uniform distribution where $\forall p_i=1/6$.
+
+Therefore, the goal is to find a set of probabilities which meet the following moment condition:
+
+$$\sum_{i=1}^6 x_i p_i = 2.8$$
+and the following normalization which ensure that we are dealing with a proper probability distribution: 
+
+$$\sum_{i=1}^6 p_i = 1$$
+
+Under this set up, it is an *ill-posed* problem, because we have six unknowns and only two equations. As a result, there are an infinite number of distributions which can satisfy these conditions.   
+
+When dealing with this type of ill-posed problems, one can use the classical Maximum Entropy (ME) formalism developed by Jaynes [-@jaynes1957a; -@jaynes1957b]. The unknown probabilities can be obtained by maximizing the analog of the Shannon information criterion (@shannon1948mathematical)
+
+$$H(\mathbf{p}) = - \sum_{i=1}^6 p_i \log(p_i)$$
+subject to the two equations mentioned above. As a result, we have the following Lagrangian of the problem:
+
+$$L = - \sum_{i=1}^6 p_i \log(p_i) + \lambda (\mu - \sum_{i=1}^6 x_i p_i) + \eta (1 - \sum_{i=1}^6 p_i)$$ 
+where $\lambda$ and $\eta$ are the Largange multipliers.
+
+First order conditions of the problem will lead to the following sollution:
+
+$$\hat{p_i} = \frac{\exp (-\hat{\lambda} x_i)}{\sum_{i=1}^6 \exp (- \hat{\lambda} x_i)}$$
+please note that this function depends on the $\lambda$ and not on the $eta$, because the normalization constraint is satisfied. Using this solution on can obtain an unconstrained dual form of the problem (for details, please see @agmon1979algorithm; @miller1994entropy; @golan1997maximum) where the concentrated likelihood has the following form:
+
+$$l(\lambda) = \lambda \mu + \log \left[\sum_{i=1}^6 \exp (- \hat{\lambda} x_i)\right]$$
+
+By minimizing $l(\lambda)$ with respect to $\lambda$, one can obtain an estimate of this Largange multiplier which in turn can be used in obtaining the $\hat{p}$'s. All functions of this package rely on the dual forms similar to this one.   
+
+One can use the built-in function ** of the *infometrics* package to obtain both $\hat{\lambda}$ and $\hat{\mathbf{p}}$ of the Jaynes dice problem:
+
+
+``` {r, eval = FALSE}
+x <- matrix(1:6, nrow = 1)
+z <- seq(from = 0, to = 1, length.out = 5)
+me.dual <- gme_lin(2.8, x, z)
+```
+
+
+
+
+
+
+
+

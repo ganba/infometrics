@@ -4,7 +4,7 @@ Title: Estimation of regression models using the infometrics framework
 Version: 0.1.0
 Author: Ganbaatar Jambal <jg3169a@american.edu>
 Maintainer: Ganbaatar Jambal <jg3169a@american.edu>
-Description: This package estimates Linear Regression Models, Matrix Balancing (Markov) Models,
+Description: This is an EXPERIMANTAL package which estimates Linear Regression Models, Matrix Balancing (Markov) Models,
    Multinomial, Conditional and Mixed Choice Discrete Choice Models using the infometrics framework.
 License: GPL-3
 Encoding: UTF-8
@@ -12,3 +12,7 @@ LazyData: true
 RoxygenNote: 6.1.1
 URL: https://github.com/ganba/infometrics
 BugReports: https://github.com/ganba/infometrics/issues
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
