@@ -27,7 +27,7 @@
 #' }
 #'
 #' @export
-#'jsojf
+#'
 #' @examples
 #' Y <- c(0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1)
 #' Y <- matrix(Y, nrow = 4, byrow = TRUE)

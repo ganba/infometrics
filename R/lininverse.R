@@ -178,16 +178,101 @@ lin_inv_grad <- function(lambda, y, X, v, nu, p0, w0, N, J, M) {
 
 }
 
-ce_lin_obj <- function(lambda, y, X, p0, N, J) {
+#' Pure Inverse Problem
+#'
+#' @param y  An (Nx1) vector representing the dependent variable where N is the number of observations
+#' @param X  An (NxK) matrix representing a set of independent variables where K is number of regressors
+#' @param p0 Optional: Prior probabilities associated with the regression coefficients
+#' @param optim_method Optional: same as the "method" argument for the "optim" function in "stats"
+#'
+#' @return This function returns a list which has the following elements.
+#' \itemize{
+#'   \item lambda - Estimated Lagrange Multipliers.
+#'   \item hess - Hessian matrix associated with the Lagrange Multipliers.
+#'   \item p - Estimated probabilities associated with the regressions coefficients.
+#'   \item p_e - Error bounds based on the weaker version of the Fano's inequality
+#'   \item Sp - The (signal) information of the whole system.
+#'   \item Pseudo_R2 - Pseudo R-squared.
+#'   \item conv - convergence (same as in the optim function).
+#' }
+#' @export
+#'
+#' @importFrom stats optim
+#'
+#' @examples
+#' # Jaynes dice problem (Jaynes 1963)
+#' y1 <- 2.5
+#' y2 <- 3.5
+#' y3 <- 4.5
+#'
+#' X  <- matrix(1:6, nrow = 1)
+#'
+#' p1 <- ce_lininv(y1, X)$p
+#' p2 <- ce_lininv(y2, X)$p
+#' p3 <- ce_lininv(y3, X)$p
+#'
+#' par(mfrow=c(1,3))
+#' barplot(p1, ylim = c(0, 0.4), names = X, main = paste0("(y = ",y1,")"), col = "red")
+#' barplot(p2, ylim = c(0, 0.4), names = X, main = paste0("(y = ",y2,")"), col = "green")
+#' barplot(p3, ylim = c(0, 0.4), names = X, main = paste0("(y = ",y3,")"), col = "blue")
+ce_lininv <- function(y, X, p0, optim_method = "BFGS") {
 
-  p <- rep(0, N)
-  for (n in 1:N) {
-    p[n] <- p0[n] * exp(sum(lambda * X[, n]))
+  dimX <- dim(X)
+  J <- dimX[1]
+  N <- dimX[2]
+  if (missing(p0)) {
+    p0 <- rep(1 / N, N)
+    p0_is_uniform <- TRUE
+  } else {
+    p0_is_uniform <- FALSE
   }
-  Omega <- sum(p)
 
-  l <- -sum(lambda * y) + (1 - nu) * log(Omega) + nu * sum(log(Psi))
-  return(l)
+  lambda0 <- rep(0, J)
 
+  ce_optim <- optim(lambda0, ce_lininv_obj, ce_lininv_grad,
+                    y = y, X = X, p0 = p0,
+                    method = optim_method, hessian = T)
+
+  lambda <- ce_optim$par
+
+  p    <- p0 * exp(lambda %*% X)
+  Phi  <- sum(p)
+  p    <- p / Phi
+
+  # Information measures
+  if (p0_is_uniform == TRUE) {
+    Sp <- -sum(p * log(p)) / log(N)
+  } else {
+    Sp <-  sum(p * log(p)) / sum(p0 * log(p0))
+  }
+
+  # INFERENCE AND DISGNOSTICS
+  # Error bounds for a weaker version of the Fano's inequality
+  p_e <- Sp - 1 / log(N)
+  # Entropy ratio (assuming Ho[beta = 0])
+  ER <- 2 * log(N) * (1 - Sp)
+  # Pseudo R-squared
+  R2 <- 1 - Sp
+  # All outputs
+  info_estim_all <- list("lambda" = lambda, "hess" = ce_optim$hessian,
+                         "p" = p, "p_e" = p_e, "Sp" = Sp, "ER" = ER,
+                         "H_p_w" = - ce_optim$value, "Pseudo_R2" = R2,
+                         "conv" = ce_optim$convergence)
+  return(info_estim_all)
+
+}
+
+ce_lininv_obj <- function(lambda, y, X, p0) {
+  Phi  <-  sum(p0 * exp(lambda %*% X))
+  like <- -sum(lambda * y) + log(Phi)
+  return(like)
+}
+
+ce_lininv_grad <- function(lambda, y, X, p0) {
+  p    <- p0 * exp(lambda %*% X)
+  Phi  <- sum(p)
+  p    <- p / Phi
+  grad <- -y + X %*% t(p)
+  return(grad)
 }
 
