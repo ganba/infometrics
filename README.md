@@ -7,6 +7,7 @@
 
 <!-- badges: end -->
 
+IMPORTANT!!! THIS PACKAGE IS UNDER MULTINOMIAL AND MIXED CHOICE MODELS ARE UNDER ACTIVE DEVELOPMENT.   
 The goal of the infometrics package is to provide tools for estimation,
 statistical inference of the Linear Inverse Models with Noise, the
 General Linear Models (GLM) with Noise, Matrix Balancing (Markov)
